@@ -531,10 +531,15 @@ function TodoScreen({onNavigate}){
       // Wait for DOM to render fully, then scroll trigger event to top of scroll area
       const t=setTimeout(()=>{
         if(triggerRef.current&&scrollRef.current){
-          const containerTop=scrollRef.current.getBoundingClientRect().top;
-          const elTop=triggerRef.current.getBoundingClientRect().top;
-          // Scroll so the date label above the event is at the top (subtract 30px for the date pill)
-          scrollRef.current.scrollTop+=elTop-containerTop-30;
+          const containerRect=scrollRef.current.getBoundingClientRect();
+          const elRect=triggerRef.current.getBoundingClientRect();
+          // Scroll so the event card sits at the BOTTOM of the visible scroll area
+          // (right above the draft bar), not at the top
+          const containerH=containerRect.height;
+          const elH=triggerRef.current.offsetHeight;
+          const dateH=30; // date pill above the event
+          const targetOffset=elRect.top-containerRect.top-(containerH-elH-dateH);
+          scrollRef.current.scrollTop+=targetOffset;
         }
       },150);
       return ()=>clearTimeout(t);
