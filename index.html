@@ -278,13 +278,13 @@ const EVENTS=[
 
 const TODOS=[
   // ── Renewals ──
-  {id:1,contact:'Maria A.',rel:'Patient',type:'renewal',summary:'Ozempic refill coming due: confirm delivery to her Florida address and send reminder.',callDraft:'Remind Maria her Ozempic refill is due around Apr 2. Confirm she wants delivery to her Florida address. Offer to adjust if needed.',textDraft:'Hi Maria, this is Safer Pharmacy. You have a refill coming due around Apr 2. Can you call us back on this number to confirm delivery details please?',due:'Apr 2',sendAs:'text',prevCall:'Asked about switching from Metformin 500mg to extended release. Pharmacist explained the difference and updated her profile.',serviceEvent:{label:'Refill date: Apr 2 — Ozempic 1mg (30-day supply delivered Mar 5). Renewal reminder scheduled.',date:'Mar 5'}},
-  {id:2,contact:'Sarah K.',rel:'Patient',type:'renewal',summary:'Surveillance scan due: 6 months since last imaging, schedule routine follow-up.',callDraft:'Call Sarah to schedule her 6-month surveillance scan. Emphasize staying on schedule is important. Offer available slots this week.',textDraft:'Hi Sarah, this is Dr. Ali\'s office. It\'s time to schedule your routine follow-up scan — staying on schedule is important for your care. Can you call us back on this number please?',due:'Today',sendAs:'call',prevCall:'Called to reschedule Thursday appointment to next week due to travel. Rescheduled to Apr 10.',serviceEvent:{label:'Last scan: Oct 14 — no evidence of disease. Next surveillance due 6 months later (Apr 14). Check-in scheduled.',date:'Oct 14'}},
-  {id:3,contact:'Luis M.',rel:'Client',type:'renewal',summary:'Two scissor lifts rental ends in 2 days: confirm extension or schedule pickup.',callDraft:'Check with Luis — his 2 scissor lifts at 600 B St are up Friday. Does he want to extend or should we schedule pickup?',textDraft:'Hi Luis, this is All Access Equipment. Your 2 scissor lifts at 600 B St are up for return on Friday. Need to extend? Reply EXTEND or we\'ll schedule pickup.',due:'Wed',sendAs:'text',prevCall:'Called about adding a generator rental for the same site. Sent quote for 20kW unit.',serviceEvent:{label:'Rental started: Mar 3 — 2x scissor lifts, 30-day term. Return date Apr 2. Renewal reminder scheduled.',date:'Mar 3'}},
+  {id:1,contact:'Maria A.',rel:'Patient',type:'renewal',summary:'Ozempic refill coming due: confirm delivery to her Florida address and send reminder.',callDraft:'Remind Maria her Ozempic refill is due around Apr 2. Confirm she wants delivery to her Florida address. Offer to adjust if needed.',textDraft:'Hi Maria, this is Safer Pharmacy. You have a refill coming due around Apr 2. Can you call us back on this number to confirm delivery details please?',due:'Apr 2',sendAs:'text',prevCall:'Asked about switching from Metformin 500mg to extended release. Pharmacist explained the difference and updated her profile.',serviceEvent:{title:'Ozempic 1mg delivered on Mar 5, 30-day supply',scheduled:'Scheduled for Apr 2: refill reminder',date:'Mar 5'}},
+  {id:2,contact:'Sarah K.',rel:'Patient',type:'renewal',summary:'Surveillance scan due: 6 months since last imaging, schedule routine follow-up.',callDraft:'Call Sarah to schedule her 6-month surveillance scan. Emphasize staying on schedule is important. Offer available slots this week.',textDraft:'Hi Sarah, this is Dr. Ali\'s office. It\'s time to schedule your routine follow-up scan — staying on schedule is important for your care. Can you call us back on this number please?',due:'Today',sendAs:'call',prevCall:'Called to reschedule Thursday appointment to next week due to travel. Rescheduled to Apr 10.',serviceEvent:{title:'CT scan on Oct 14 — no evidence of disease',scheduled:'Scheduled for Apr 14: 6-month surveillance scan reminder',date:'Oct 14'}},
+  {id:3,contact:'Luis M.',rel:'Client',type:'renewal',summary:'Two scissor lifts rental ends in 2 days: confirm extension or schedule pickup.',callDraft:'Check with Luis — his 2 scissor lifts at 600 B St are up Friday. Does he want to extend or should we schedule pickup?',textDraft:'Hi Luis, this is All Access Equipment. Your 2 scissor lifts at 600 B St are up for return on Friday. Need to extend? Reply EXTEND or we\'ll schedule pickup.',due:'Wed',sendAs:'text',prevCall:'Called about adding a generator rental for the same site. Sent quote for 20kW unit.',serviceEvent:{title:'2x scissor lifts rental started on Mar 3, 30-day term',scheduled:'Scheduled for Apr 2: renewal reminder',date:'Mar 3'}},
   // ── Check-ins ──
-  {id:4,contact:'Carlos R.',rel:'Patient',type:'check-in',summary:'Ozempic delivered yesterday: check if delivery arrived safely and answer any questions.',callDraft:'Check in with Carlos — his Ozempic was delivered yesterday to his Miami address. Ask if it arrived safely and if he has any questions about the medication.',textDraft:'Hi Carlos, this is Safer Pharmacy. Just checking in — did your delivery arrive safely? Any questions? Can you call us back on this number please?',due:'Today',sendAs:'text',prevCall:'Called to update insurance info. New provider is Blue Cross, card on file.',serviceEvent:{label:'Delivery status → delivered (Mar 30). Day-1 check-in scheduled for Mar 31.',date:'Mar 30'}},
-  {id:5,contact:'James W.',rel:'Patient',type:'check-in',summary:'48h post immunotherapy cycle 3: check in on side effects and recovery.',callDraft:'Check in on James 48h after immunotherapy cycle 3. Ask about nausea, fatigue, appetite, and any new symptoms. If concerning, offer to move up his next visit.',textDraft:'Hi James, this is Dr. Ali\'s office. We hope you\'re recovering well and would like to check in. Can you call us back on this number please?',due:'Today',sendAs:'call',prevCall:'Asked about parking options for his next appointment. Directed to the garage on 5th St with validation.',serviceEvent:{label:'Cycle status → completed (Mar 29). Post-treatment check-in scheduled for 48h later.',date:'Mar 29'}},
-  {id:6,contact:'Dave T.',rel:'Client',type:'check-in',summary:'40-ft boom delivered yesterday: check if setup went smoothly and operator has what they need.',callDraft:'Check in with Dave — the 40-ft boom was delivered yesterday for his Monday job. Make sure it\'s set up OK and the operator has what they need.',textDraft:'Hi Dave, John from All Access. Just checking in — is the boom set up and running OK on-site? Let us know if you need anything.',due:'Today',sendAs:'text',prevCall:'Called about safety harness requirements for the boom. Confirmed we include harnesses with all boom rentals.',serviceEvent:{label:'Delivery status → on-site (Mar 31). Day-1 check-in scheduled for Apr 1.',date:'Mar 31'}},
+  {id:4,contact:'Carlos R.',rel:'Patient',type:'check-in',summary:'Ozempic delivered yesterday: check if delivery arrived safely and answer any questions.',callDraft:'Check in with Carlos — his Ozempic was delivered yesterday to his Miami address. Ask if it arrived safely and if he has any questions about the medication.',textDraft:'Hi Carlos, this is Safer Pharmacy. Just checking in — did your delivery arrive safely? Any questions? Can you call us back on this number please?',due:'Today',sendAs:'text',prevCall:'Called to update insurance info. New provider is Blue Cross, card on file.',serviceEvent:{title:'Ozempic 1mg delivered on Mar 30, first delivery',scheduled:'Scheduled for Mar 31: day-1 delivery check-in',date:'Mar 30'}},
+  {id:5,contact:'James W.',rel:'Patient',type:'check-in',summary:'48h post immunotherapy cycle 3: check in on side effects and recovery.',callDraft:'Check in on James 48h after immunotherapy cycle 3. Ask about nausea, fatigue, appetite, and any new symptoms. If concerning, offer to move up his next visit.',textDraft:'Hi James, this is Dr. Ali\'s office. We hope you\'re recovering well and would like to check in. Can you call us back on this number please?',due:'Today',sendAs:'call',prevCall:'Asked about parking options for his next appointment. Directed to the garage on 5th St with validation.',serviceEvent:{title:'Immunotherapy cycle 3 completed on Mar 29',scheduled:'Scheduled for Mar 31: 48h post-treatment check-in',date:'Mar 29'}},
+  {id:6,contact:'Dave T.',rel:'Client',type:'check-in',summary:'40-ft boom delivered yesterday: check if setup went smoothly and operator has what they need.',callDraft:'Check in with Dave — the 40-ft boom was delivered yesterday for his Monday job. Make sure it\'s set up OK and the operator has what they need.',textDraft:'Hi Dave, John from All Access. Just checking in — is the boom set up and running OK on-site? Let us know if you need anything.',due:'Today',sendAs:'text',prevCall:'Called about safety harness requirements for the boom. Confirmed we include harnesses with all boom rentals.',serviceEvent:{title:'40-ft boom delivered on-site on Mar 31',scheduled:'Scheduled for Apr 1: day-1 equipment check-in',date:'Mar 31'}},
 ];
 
 // ── Shared Components ──
@@ -541,23 +541,8 @@ function TodoScreen({onNavigate}){
         {/* Thread content + reply bar — all inside scroll so no overflow */}
         <div className="screen-content" style={{background:'var(--bg)'}}>
           <div style={{padding:'0 16px'}}>
-            {/* Service event — same card style as Call/SMS cards */}
-            {openThread.serviceEvent&&(<>
-              <div style={{textAlign:'center',padding:'8px 0 10px'}}>
-                <span style={{fontSize:12,fontWeight:500,color:'var(--tertiary-text)',background:'var(--surface-darken)',padding:'4px 12px',borderRadius:12}}>{openThread.serviceEvent.date}</span>
-              </div>
-              <div style={{marginBottom:12}}>
-                <div style={{padding:'12px 14px',background:'var(--surface-dark)',borderRadius:'var(--r-lg)',border:'.5px solid var(--border)'}}>
-                  <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:6}}>
-                    <span style={{display:'flex'}}>{I.calendar({s:18,c:'var(--primary-text)'})}</span>
-                    <span style={{fontSize:17,fontWeight:600,color:'var(--primary-text)'}}>Event</span>
-                  </div>
-                  <div style={{fontSize:15,color:'var(--primary-text)',lineHeight:1.4}}>{openThread.serviceEvent.label}</div>
-                </div>
-              </div>
-            </>)}
-            {/* Call card */}
-            <div style={{textAlign:'center',padding:'4px 0 10px'}}>
+            {/* Call card — earlier interaction */}
+            <div style={{textAlign:'center',padding:'8px 0 10px'}}>
               <span style={{fontSize:12,fontWeight:500,color:'var(--tertiary-text)',background:'var(--surface-darken)',padding:'4px 12px',borderRadius:12}}>Earlier</span>
             </div>
             <div style={{marginBottom:12,marginRight:32}}>
@@ -570,9 +555,25 @@ function TodoScreen({onNavigate}){
                 <div style={{fontSize:15,color:'var(--primary-text)',fontStyle:'italic',lineHeight:1.4}}>{openThread.prevCall}</div>
               </div>
             </div>
+            {/* Service event — bold title + scheduled line */}
+            {openThread.serviceEvent&&(<>
+              <div style={{textAlign:'center',padding:'4px 0 10px'}}>
+                <span style={{fontSize:12,fontWeight:500,color:'var(--tertiary-text)',background:'var(--surface-darken)',padding:'4px 12px',borderRadius:12}}>{openThread.serviceEvent.date}</span>
+              </div>
+              <div style={{marginBottom:12}} id="trigger-event">
+                <div style={{padding:'12px 14px',background:'var(--surface-dark)',borderRadius:'var(--r-lg)',border:'.5px solid var(--border)'}}>
+                  <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:6}}>
+                    <span style={{display:'flex'}}>{I.calendar({s:18,c:'var(--primary-text)'})}</span>
+                    <span style={{fontSize:17,fontWeight:600,color:'var(--primary-text)'}}>Event</span>
+                  </div>
+                  <div style={{fontSize:15,fontWeight:600,color:'var(--primary-text)',lineHeight:1.4}}>{openThread.serviceEvent.title}</div>
+                  <div style={{fontSize:14,color:'var(--secondary-text)',lineHeight:1.4,marginTop:2}}>{openThread.serviceEvent.scheduled}</div>
+                </div>
+              </div>
+            </>)}
           </div>
-          {/* SuggestedMessageBar — mode pill + draft — inside scroll area, sticks to bottom visually */}
-          <div style={{padding:'6px 16px 8px',borderTop:'.5px solid var(--border)',position:'sticky',bottom:0,background:'var(--bg)'}}>
+          {/* SuggestedMessageBar — mode pill + draft */}
+          <div style={{padding:'6px 16px 0',borderTop:'.5px solid var(--border)',background:'var(--bg)'}}>
           {(() => {
             const activeDraft = threadSendAs==='call' ? openThread.callDraft : openThread.textDraft;
             const isCall = threadSendAs==='call';
@@ -590,7 +591,7 @@ function TodoScreen({onNavigate}){
                         onClick={(e)=>{e.stopPropagation();setThreadSendAs(isCall?'text':'call');setDraftEditing(false);setEditedDraft('')}}
                         style={{display:'inline-flex',alignItems:'center',gap:3,padding:'1px 4px 1px 5px',background:'var(--surface-darken)',borderRadius:10,border:'.5px solid var(--border)',cursor:'pointer',verticalAlign:'middle',marginRight:4}}
                       >
-                        <span style={{display:'flex'}}>{isCall ? I.phone({s:13,c:'var(--primary-text)'}) : I.sms({s:13,c:'var(--primary-text)'})}</span>
+                        <span style={{display:'flex'}}>{isCall ? I.outbound({s:13,c:'var(--primary-text)'}) : I.sms({s:13,c:'var(--primary-text)'})}</span>
                         <span style={{fontSize:12,fontWeight:600,color:'var(--primary-text)',lineHeight:'18px'}}>{isCall?'AI Call':'Text'}</span>
                         <span style={{display:'flex',alignItems:'center',justifyContent:'center',width:18,height:18,borderRadius:9,border:'1.5px solid var(--primary-text)',background:'transparent',marginLeft:1}}>{I.chevronDown({s:10,c:'var(--primary-text)'})}</span>
                       </span>
@@ -613,6 +614,24 @@ function TodoScreen({onNavigate}){
             </div>
             );
           })()}
+        </div>
+        {/* iOS Keyboard */}
+        <div style={{background:'#D1D3D9',padding:'6px 3px 2px',flexShrink:0}}>
+          {[['Q','W','E','R','T','Y','U','I','O','P'],['A','S','D','F','G','H','J','K','L'],['⇧','Z','X','C','V','B','N','M','⌫']].map((row,ri)=>(
+            <div key={ri} style={{display:'flex',justifyContent:'center',gap:ri===2?4:5,marginBottom:5}}>
+              {row.map((k,ki)=>{
+                const isSpecial=k==='⇧'||k==='⌫';
+                return <div key={ki} style={{width:isSpecial?38:30,height:36,background:'#fff',borderRadius:5,display:'flex',alignItems:'center',justifyContent:'center',fontSize:isSpecial?16:15,fontWeight:400,color:'#000',boxShadow:'0 1px 0 rgba(0,0,0,.3)',fontFamily:'-apple-system,sans-serif'}}>{k}</div>;
+              })}
+            </div>
+          ))}
+          <div style={{display:'flex',gap:5,justifyContent:'center'}}>
+            <div style={{width:75,height:36,background:'#ADB3BC',borderRadius:5,display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,color:'#000',boxShadow:'0 1px 0 rgba(0,0,0,.25)'}}>123</div>
+            <div style={{width:30,height:36,background:'#ADB3BC',borderRadius:5,display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,color:'#000'}}>🌐</div>
+            <div style={{flex:1,height:36,background:'#fff',borderRadius:5,display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,color:'#888',boxShadow:'0 1px 0 rgba(0,0,0,.3)'}}>space</div>
+            <div style={{width:75,height:36,background:'#ADB3BC',borderRadius:5,display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,color:'#000',boxShadow:'0 1px 0 rgba(0,0,0,.25)'}}>return</div>
+          </div>
+          <div style={{height:4}}/>
         </div>
         </div>{/* close screen-content */}
       </div>
