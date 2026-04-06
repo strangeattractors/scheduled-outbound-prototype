@@ -546,69 +546,67 @@ function TodoScreen({onNavigate}){
           <Tag text={openThread.rel}/>
         </div>
 
-        {/* Thread content + reply bar — all inside scroll so no overflow */}
-        <div className="screen-content" ref={scrollRef} style={{background:'var(--bg)'}}>
-          <div style={{padding:'0 16px'}}>
-            {/* Call card — earlier interaction */}
-            <div style={{textAlign:'center',padding:'8px 0 10px'}}>
-              <span style={{fontSize:12,fontWeight:500,color:'var(--tertiary-text)',background:'var(--surface-darken)',padding:'4px 12px',borderRadius:12}}>Earlier</span>
+        {/* Thread content — ONLY thread items scroll */}
+        <div className="screen-content" ref={scrollRef} style={{background:'var(--bg)',padding:'0 16px'}}>
+          {/* Call card — earlier interaction */}
+          <div style={{textAlign:'center',padding:'8px 0 10px'}}>
+            <span style={{fontSize:12,fontWeight:500,color:'var(--tertiary-text)',background:'var(--surface-darken)',padding:'4px 12px',borderRadius:12}}>Earlier</span>
+          </div>
+          <div style={{marginBottom:12,marginRight:32}}>
+            <div style={{padding:'12px 14px',background:'var(--surface-dark)',borderRadius:'var(--r-lg)',border:'.5px solid var(--border)'}}>
+              <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:6}}>
+                <span style={{display:'flex'}}>{I.callReceive({s:18,c:'var(--primary-text)'})}</span>
+                <span style={{fontSize:17,fontWeight:600,color:'var(--primary-text)'}}>Call</span>
+                <span style={{fontSize:12,color:'var(--secondary-text)',marginLeft:'auto'}}>2:13p</span>
+              </div>
+              <div style={{fontSize:15,color:'var(--primary-text)',fontStyle:'italic',lineHeight:1.4}}>{openThread.prevCall}</div>
             </div>
-            <div style={{marginBottom:12,marginRight:32}}>
+          </div>
+          {/* Service event — bold title + scheduled line */}
+          {openThread.serviceEvent&&(<>
+            <div style={{textAlign:'center',padding:'4px 0 10px'}}>
+              <span style={{fontSize:12,fontWeight:500,color:'var(--tertiary-text)',background:'var(--surface-darken)',padding:'4px 12px',borderRadius:12}}>{openThread.serviceEvent.date}</span>
+            </div>
+            <div style={{marginBottom:12}} ref={triggerRef}>
               <div style={{padding:'12px 14px',background:'var(--surface-dark)',borderRadius:'var(--r-lg)',border:'.5px solid var(--border)'}}>
                 <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:6}}>
-                  <span style={{display:'flex'}}>{I.callReceive({s:18,c:'var(--primary-text)'})}</span>
-                  <span style={{fontSize:17,fontWeight:600,color:'var(--primary-text)'}}>Call</span>
-                  <span style={{fontSize:12,color:'var(--secondary-text)',marginLeft:'auto'}}>2:13p</span>
+                  <span style={{display:'flex'}}>{I.calendar({s:18,c:'var(--primary-text)'})}</span>
+                  <span style={{fontSize:17,fontWeight:600,color:'var(--primary-text)'}}>Event</span>
                 </div>
-                <div style={{fontSize:15,color:'var(--primary-text)',fontStyle:'italic',lineHeight:1.4}}>{openThread.prevCall}</div>
+                <div style={{fontSize:15,fontWeight:600,color:'var(--primary-text)',lineHeight:1.4}}>{openThread.serviceEvent.title}</div>
+                <div style={{fontSize:14,color:'var(--secondary-text)',lineHeight:1.4,marginTop:2}}>{openThread.serviceEvent.scheduled}</div>
               </div>
             </div>
-            {/* Service event — bold title + scheduled line */}
-            {openThread.serviceEvent&&(<>
-              <div style={{textAlign:'center',padding:'4px 0 10px'}}>
-                <span style={{fontSize:12,fontWeight:500,color:'var(--tertiary-text)',background:'var(--surface-darken)',padding:'4px 12px',borderRadius:12}}>{openThread.serviceEvent.date}</span>
-              </div>
-              <div style={{marginBottom:12}} ref={triggerRef}>
-                <div style={{padding:'12px 14px',background:'var(--surface-dark)',borderRadius:'var(--r-lg)',border:'.5px solid var(--border)'}}>
-                  <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:6}}>
-                    <span style={{display:'flex'}}>{I.calendar({s:18,c:'var(--primary-text)'})}</span>
-                    <span style={{fontSize:17,fontWeight:600,color:'var(--primary-text)'}}>Event</span>
-                  </div>
-                  <div style={{fontSize:15,fontWeight:600,color:'var(--primary-text)',lineHeight:1.4}}>{openThread.serviceEvent.title}</div>
-                  <div style={{fontSize:14,color:'var(--secondary-text)',lineHeight:1.4,marginTop:2}}>{openThread.serviceEvent.scheduled}</div>
+          </>)}
+          {/* Recent items after the trigger event */}
+          {openThread.recentItems&&openThread.recentItems.map((item,i)=>(
+            <div key={i} style={{marginBottom:12,...(item.direction==='out'?{marginLeft:32}:{marginRight:32})}}>
+              <div style={{padding:'12px 14px',background:item.direction==='out'?'var(--surface-darken)':'var(--surface-dark)',borderRadius:'var(--r-lg)',border:'.5px solid var(--border)'}}>
+                <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:item.text?0:6}}>
+                  <span style={{display:'flex'}}>{item.type==='call'?I.callReceive({s:18,c:'var(--primary-text)'}):I.sms({s:18,c:'var(--primary-text)'})}</span>
+                  <span style={{fontSize:17,fontWeight:600,color:'var(--primary-text)'}}>{item.type==='call'?'Call':'Text'}</span>
+                  <span style={{fontSize:12,color:'var(--secondary-text)',marginLeft:'auto'}}>{item.time}</span>
                 </div>
+                {item.summary&&<div style={{fontSize:15,color:'var(--primary-text)',fontStyle:'italic',lineHeight:1.4}}>{item.summary}</div>}
+                {item.text&&<div style={{fontSize:15,color:'var(--primary-text)',fontStyle:'italic',lineHeight:1.4,marginTop:4}}>{item.text}</div>}
               </div>
-            </>)}
-            {/* Recent items after the trigger event — scrollable below */}
-            {openThread.recentItems&&openThread.recentItems.map((item,i)=>(
-              <div key={i} style={{marginBottom:12,...(item.direction==='out'?{marginLeft:32}:{marginRight:32})}}>
-                <div style={{padding:'12px 14px',background:item.direction==='out'?'var(--surface-darken)':'var(--surface-dark)',borderRadius:'var(--r-lg)',border:'.5px solid var(--border)'}}>
-                  <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:item.text?0:6}}>
-                    <span style={{display:'flex'}}>{item.type==='call'?I.callReceive({s:18,c:'var(--primary-text)'}):item.type==='sms'?I.sms({s:18,c:'var(--primary-text)'}):I.outbound({s:18,c:'var(--primary-text)'})}</span>
-                    <span style={{fontSize:17,fontWeight:600,color:'var(--primary-text)'}}>{item.type==='call'?'Call':item.type==='sms-out'?'Text':'Text'}</span>
-                    <span style={{fontSize:12,color:'var(--secondary-text)',marginLeft:'auto'}}>{item.time}</span>
-                  </div>
-                  {item.summary&&<div style={{fontSize:15,color:'var(--primary-text)',fontStyle:'italic',lineHeight:1.4}}>{item.summary}</div>}
-                  {item.text&&<div style={{fontSize:15,color:'var(--primary-text)',fontStyle:'italic',lineHeight:1.4,marginTop:4}}>{item.text}</div>}
-                </div>
-              </div>
-            ))}
-            <div style={{height:8}}/>
-          </div>
-          {/* SuggestedMessageBar — mode pill + draft */}
-          <div style={{padding:'6px 16px 0',borderTop:'.5px solid var(--border)',background:'var(--bg)'}}>
+            </div>
+          ))}
+          <div style={{height:8}}/>
+        </div>
+
+        {/* Draft bar — FIXED, does not scroll */}
+        <div style={{padding:'6px 16px 4px',borderTop:'.5px solid var(--border)',background:'var(--bg)',flexShrink:0}}>
           {(() => {
             const activeDraft = threadSendAs==='call' ? openThread.callDraft : openThread.textDraft;
             const isCall = threadSendAs==='call';
             return (
             <div style={{display:'flex',alignItems:'flex-end',gap:8}}>
-              {/* Input pill with inline mode chip + draft */}
               <div style={{flex:1,padding:'8px 10px',background:'var(--input-bg)',borderRadius:24,border:'.5px solid var(--input-stroke)',maxHeight:draftEditing?140:88,overflow:'auto'}}
                 onDoubleClick={()=>{if(!draftEditing){setDraftEditing(true);setEditedDraft(activeDraft)}}}
               >
                 {!draftEditing?(
                   <div>
-                    {/* Inline flow: chip then text wrap together like a paragraph with first-line indent */}
                     <div style={{fontSize:15,color:'var(--secondary-text)',lineHeight:1.6}}>
                       <span
                         onClick={(e)=>{e.stopPropagation();setThreadSendAs(isCall?'text':'call');setDraftEditing(false);setEditedDraft('')}}
@@ -629,7 +627,6 @@ function TodoScreen({onNavigate}){
                     style={{width:'100%',border:'none',background:'transparent',outline:'none',fontSize:15,fontFamily:'inherit',color:'var(--primary-text)',resize:'none',lineHeight:1.4}} rows={3}/>
                 )}
               </div>
-              {/* Send button */}
               <div style={{width:36,height:36,borderRadius:18,background:'var(--accent)',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',flexShrink:0,marginBottom:2}}
                 onClick={()=>{setSentIds(p=>[...p,openThread.id]);setOpenThread(null)}}>
                 {I.arrowUp({s:16,c:'#fff'})}
@@ -638,7 +635,8 @@ function TodoScreen({onNavigate}){
             );
           })()}
         </div>
-        {/* iOS Keyboard */}
+
+        {/* iOS Keyboard — FIXED, does not scroll */}
         <div style={{background:'#D1D3D9',padding:'6px 3px 2px',flexShrink:0}}>
           {[['Q','W','E','R','T','Y','U','I','O','P'],['A','S','D','F','G','H','J','K','L'],['⇧','Z','X','C','V','B','N','M','⌫']].map((row,ri)=>(
             <div key={ri} style={{display:'flex',justifyContent:'center',gap:ri===2?4:5,marginBottom:5}}>
@@ -656,7 +654,6 @@ function TodoScreen({onNavigate}){
           </div>
           <div style={{height:4}}/>
         </div>
-        </div>{/* close screen-content */}
       </div>
     );
   }
