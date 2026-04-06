@@ -725,14 +725,17 @@ function TodoScreen({onNavigate}){
   React.useEffect(()=>{
     if(simState==='playing'&&openThread){
       const tx=TRANSCRIPTS[openThread.id];
-      if(tx&&simIdx<tx.lines.length){
+      const lines=tx._simLines||tx.lines;
+      if(tx&&simIdx<lines.length){
+        const line=lines[simIdx];
+        const delay=line.w==='t'?800:line.w==='s'?1500:1200;
         const t=setTimeout(()=>{
-          setSimLines(l=>[...l,tx.lines[simIdx]]);
+          setSimLines(l=>[...l,lines[simIdx]]);
           setSimIdx(i=>i+1);
           if(simScrollRef.current)simScrollRef.current.scrollTop=simScrollRef.current.scrollHeight;
-        },1200);
+        },delay);
         return()=>clearTimeout(t);
-      }else if(tx&&simIdx>=tx.lines.length){
+      }else if(tx&&simIdx>=lines.length){
         setSimState('done');
         setSentIds(p=>[...p,openThread.id]);
       }
@@ -751,7 +754,7 @@ function TodoScreen({onNavigate}){
           <Avatar name={openThread.contact} size={36}/>
           <div style={{flex:1}}>
             <div style={{fontSize:17,fontWeight:600,color:'var(--primary-text)'}}>{openThread.contact}</div>
-            <div style={{fontSize:12,color:simState==='loading'?'var(--accent)':simState==='playing'?'var(--green)':'var(--secondary-text)'}}>{simState==='loading'?(isCall?'Calling...':'Sending...'):(simState==='playing'?(isCall?'AI call in progress...':'Awaiting response...'):'Call ended')}</div>
+            <div style={{fontSize:12,color:simState==='loading'?'var(--accent)':simState==='playing'?'var(--green)':'var(--secondary-text)'}}>{simState==='loading'?(isCall?'Placing AI call...':'Sending text...'):(simState==='playing'?(isCall?'AI call in progress...':'Conversation in progress...'):'Completed')}</div>
           </div>
           {simState==='playing'&&<div style={{width:10,height:10,borderRadius:5,background:'var(--green)',animation:'pulse 1.5s infinite'}}/>}
         </div>
@@ -768,7 +771,16 @@ function TodoScreen({onNavigate}){
             {simLines.map((line,i)=>{
               const isAI=line.w==='a';
               const isSys=line.w==='s';
-              if(isSys) return <div key={i} style={{textAlign:'center',padding:'8px 0',fontSize:13,color:'var(--secondary-text)',fontStyle:'italic'}}>{line.t}</div>;
+              const isText=line.w==='t';
+              if(isSys) return <div key={i} style={{textAlign:'center',padding:'8px 0',fontSize:13,color:'var(--secondary-text)',fontStyle:'italic',animation:'fadeIn .3s ease'}}>{line.t}</div>;
+              if(isText) return(
+                <div key={i} style={{display:'flex',justifyContent:'flex-end',marginBottom:8,animation:'fadeIn .3s ease'}}>
+                  <div style={{maxWidth:'85%',padding:'10px 14px',borderRadius:'16px 16px 4px 16px',background:'var(--surface-darken)',border:'.5px solid var(--border)',color:'var(--primary-text)',fontSize:15,lineHeight:1.4}}>
+                    <div style={{fontSize:11,fontWeight:600,color:'var(--tertiary-text)',marginBottom:4,textTransform:'uppercase'}}>Text sent</div>
+                    {line.t}
+                  </div>
+                </div>
+              );
               return(
                 <div key={i} style={{display:'flex',justifyContent:isAI?'flex-start':'flex-end',marginBottom:8,animation:'fadeIn .3s ease'}}>
                   <div style={{maxWidth:'80%',padding:'10px 14px',borderRadius:isAI?'16px 16px 16px 4px':'16px 16px 4px 16px',background:isAI?'var(--surface-dark)':'var(--accent)',color:isAI?'var(--primary-text)':'#fff',fontSize:15,lineHeight:1.4}}>
@@ -905,7 +917,16 @@ function TodoScreen({onNavigate}){
                     setSimState('loading');
                     setSimLines([]);
                     setSimIdx(0);
-                    setTimeout(()=>{setSimState('playing')},2000);
+                    // If text mode for healthcare, prepend text + callback flow
+                    const isTextMode=threadSendAs==='text';
+                    const isHealthcare=[1,2,4,5,7,8,9,10].includes(openThread.id);
+                    if(isTextMode&&isHealthcare){
+                      const textDraft=openThread.textDraft;
+                      tx._simLines=[{w:'t',t:textDraft},{w:'s',t:'✓ Text delivered'},{w:'s',t:'📞 '+openThread.contact+' is calling back...'},{w:'s',t:'AI answering inbound call'},...tx.lines];
+                    }else{
+                      tx._simLines=tx.lines;
+                    }
+                    setTimeout(()=>{setSimState('playing')},isTextMode?1500:2000);
                   }else{
                     setSentIds(p=>[...p,openThread.id]);setOpenThread(null);
                   }
