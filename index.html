@@ -434,78 +434,227 @@ function ContactThreadScreen(){
   );
 }
 
-// ── Screen 2: Secretary Settings (matching SecretarySettingsView.swift exactly) ──
-function ScenariosScreen(){
-  const scenarios=[
-    {condition:'If patient\'s refill date is approaching',instructions:'Text a refill reminder. Confirm delivery address. Offer to adjust if needed.'},
-    {condition:'If patient\'s medication was just delivered',instructions:'Text next day to check delivery arrived safely. Answer any medication questions.'},
-    {condition:'If patient\'s surveillance scan is due',instructions:'Call to schedule routine follow-up scan. Emphasize staying on schedule.'},
-    {condition:'If patient\'s treatment cycle just completed',instructions:'Call 48h later to check on side effects and recovery. If concerning, offer earlier visit.'},
-    {condition:'If client\'s rental is ending soon',instructions:'Text 2 days before rental ends. Confirm extension or schedule pickup.'},
-    {condition:'If client\'s equipment was just delivered',instructions:'Text next day to check setup went smoothly. Offer support if needed.'},
-  ];
+// ── Chevron pill component (reusable) ──
+function ChevPill({label,options,value,onChange}){
+  const[open,setOpen]=useState(false);
+  return(<span style={{position:'relative',display:'inline-flex'}}>
+    <span onClick={(e)=>{e.stopPropagation();setOpen(!open)}} style={{display:'inline-flex',alignItems:'center',gap:3,padding:'2px 4px 2px 6px',background:'var(--surface-darken)',borderRadius:10,border:'.5px solid var(--border)',cursor:'pointer'}}>
+      <span style={{fontSize:14,fontWeight:600,color:'var(--primary-text)'}}>{value||label}</span>
+      <span style={{display:'flex',alignItems:'center',justifyContent:'center',width:16,height:16,borderRadius:8,border:'.75px solid var(--primary-text)',background:'transparent'}}>{I.chevronDown({s:8,c:'var(--primary-text)'})}</span>
+    </span>
+    {open&&<div style={{position:'absolute',top:'100%',left:0,marginTop:4,background:'var(--bg)',borderRadius:10,border:'.5px solid var(--border)',boxShadow:'0 4px 16px rgba(0,0,0,.12)',zIndex:20,minWidth:140,overflow:'hidden'}}>
+      {options.map((o,i)=><div key={i} onClick={(e)=>{e.stopPropagation();onChange(o);setOpen(false)}} style={{padding:'10px 14px',fontSize:14,color:o===value?'var(--accent)':'var(--primary-text)',fontWeight:o===value?600:400,cursor:'pointer',borderBottom:i<options.length-1?'.5px solid var(--border)':'none'}}>{o}</div>)}
+    </div>}
+  </span>);
+}
 
+// ── Screen 2: Secretary Settings ──
+function ScenariosScreen(){
+  const allScenarios=[
+    {id:'mc',direction:'inbound',condition:"If potential client/partner call missed",instructions:'Text back instantly apologizing & asking how we can help.',auto:true,rel:'prospect',event:'missed call',timing:'instantly',action:'text'},
+    {id:'r1',direction:'outbound',condition:"If patient's refill date is approaching",instructions:'Text a refill reminder. Confirm delivery address.',auto:false,rel:'patient',event:'refill',timing:'in 2 days',action:'text'},
+    {id:'c1',direction:'outbound',condition:"If patient's medication was just delivered",instructions:'Text next day to check delivery arrived safely.',auto:true,rel:'patient',event:'delivery',timing:'next day',action:'text'},
+    {id:'r2',direction:'outbound',condition:"If patient's surveillance scan is due",instructions:'Call to schedule routine follow-up scan.',auto:false,rel:'patient',event:'scan',timing:'in 1 week',action:'call'},
+    {id:'c2',direction:'outbound',condition:"If patient's treatment cycle just completed",instructions:'Call 48h later to check on side effects and recovery.',auto:false,rel:'patient',event:'cycle',timing:'in 48h',action:'call'},
+    {id:'r3',direction:'outbound',condition:"If client's rental is ending soon",instructions:'Text 2 days before rental ends. Confirm extension or pickup.',auto:false,rel:'client',event:'rental end',timing:'in 2 days',action:'text'},
+    {id:'c3',direction:'outbound',condition:"If client's equipment was just delivered",instructions:'Text next day to check setup went smoothly.',auto:true,rel:'client',event:'delivery',timing:'next day',action:'text'},
+  ];
+  const[editing,setEditing]=useState(null);
+  const[adding,setAdding]=useState(false);
+  const[voiceText,setVoiceText]=useState('');
+  const[voiceLoading,setVoiceLoading]=useState(false);
+  const[voiceDone,setVoiceDone]=useState(false);
+  const[eRel,setERel]=useState('');
+  const[eEvent,setEEvent]=useState('');
+  const[eTiming,setETiming]=useState('');
+  const[eAction,setEAction]=useState('');
+  const[eAuto,setEAuto]=useState(false);
+  const[eDir,setEDir]=useState('outbound');
+
+  const relOpts=['patient','client','prospect','partner','vendor'];
+  const eventOpts=['refill','delivery','scan','cycle','rental end','missed call','quote','appointment'];
+  const timingOpts=['instantly','next day','in 48h','in 2 days','in 1 week','in 2 weeks','in 1 month'];
+
+  // ── Add Scenario: voice done → show structured result ──
+  if(adding&&voiceDone){
+    return(
+      <div className="phone"><StatusBar/>
+        <div className="nav-header">
+          <span onClick={()=>{setAdding(false);setVoiceDone(false);setVoiceText('')}} style={{fontSize:15,color:'var(--accent)',cursor:'pointer'}}>Cancel</span>
+          <span style={{fontSize:17,fontWeight:500,color:'var(--primary-text)',flex:1,textAlign:'center'}}>New Scenario</span>
+          <span onClick={()=>{setAdding(false);setVoiceDone(false);setVoiceText('')}} style={{fontSize:15,color:'var(--accent)',fontWeight:600,cursor:'pointer'}}>Save</span>
+        </div>
+        <div className="screen-content"><div style={{padding:'0 16px'}}>
+          <div className="card" style={{marginBottom:16,marginTop:8}}>
+            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'8px 0',borderBottom:'.5px solid var(--border)'}}>
+              <span style={{fontSize:15,color:'var(--primary-text)'}}>Direction</span>
+              <div style={{display:'flex',borderRadius:20,overflow:'hidden',border:'1px solid var(--border)'}}>
+                <div style={{padding:'4px 12px',fontSize:13,fontWeight:600,background:'var(--primary-text)',color:'#fff'}}>Outbound</div>
+                <div style={{padding:'4px 12px',fontSize:13,fontWeight:500,color:'var(--secondary-text)'}}>Inbound</div>
+              </div>
+            </div>
+            <div style={{padding:'12px 0',borderBottom:'.5px solid var(--border)'}}>
+              <div style={{fontSize:13,color:'var(--tertiary-text)',marginBottom:6}}>Condition</div>
+              <div style={{fontSize:15,color:'var(--primary-text)',lineHeight:1.6}}>
+                If <ChevPill label="rel" options={relOpts} value="patient" onChange={()=>{}}/>&apos;s <ChevPill label="event" options={eventOpts} value="refill" onChange={()=>{}}/> date is <ChevPill label="timing" options={timingOpts} value="in 2 days" onChange={()=>{}}/>
+              </div>
+            </div>
+            <div style={{padding:'12px 0',borderBottom:'.5px solid var(--border)'}}>
+              <div style={{fontSize:13,color:'var(--tertiary-text)',marginBottom:6}}>Action</div>
+              <div style={{fontSize:15,color:'var(--primary-text)',lineHeight:1.6}}>
+                <ChevPill label="action" options={['Text','Make an AI call regarding']} value="Text" onChange={()=>{}}/> a refill reminder
+              </div>
+            </div>
+            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'12px 0'}}>
+              <span style={{fontSize:15,color:'var(--primary-text)'}}>Automatic</span>
+              <Toggle on={false} onToggle={()=>{}}/>
+            </div>
+          </div>
+        </div></div>
+        <FloatingTabBar active="profile"/>
+      </div>
+    );
+  }
+
+  // ── Add Scenario: voice input page ──
+  if(adding){
+    return(
+      <div className="phone"><StatusBar/>
+        <div className="nav-header">
+          <span onClick={()=>{setAdding(false);setVoiceText('')}} style={{fontSize:15,color:'var(--accent)',cursor:'pointer'}}>Cancel</span>
+          <span style={{fontSize:17,fontWeight:500,color:'var(--primary-text)',flex:1,textAlign:'center'}}>New Scenario</span>
+          <span style={{width:50}}/>
+        </div>
+        <div className="screen-content" style={{display:'flex',flexDirection:'column',alignItems:'center',padding:'40px 24px'}}>
+          <div style={{fontSize:17,fontWeight:600,color:'var(--primary-text)',textAlign:'center',marginBottom:6}}>Describe your scenario in plain English, and we'll define it for you!</div>
+          <div style={{fontSize:14,color:'var(--secondary-text)',textAlign:'center',marginBottom:32}}>Tap the mic or type below.</div>
+          <div onClick={()=>{setVoiceText('when a patient is about to run out of their medication uh like two days before, send them a text reminding them to refill');setVoiceLoading(true);setTimeout(()=>{setVoiceLoading(false);setVoiceDone(true)},1500)}}
+            style={{width:72,height:72,borderRadius:36,background:'var(--accent)',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',boxShadow:'0 4px 16px rgba(255,131,112,.35)',marginBottom:24}}>
+            {I.mic({s:28,c:'#fff'})}
+          </div>
+          <div style={{width:'100%'}}>
+            <textarea value={voiceText} onChange={e=>setVoiceText(e.target.value)}
+              onKeyDown={e=>{if(e.key==='Enter'&&voiceText.trim()){e.preventDefault();setVoiceLoading(true);setTimeout(()=>{setVoiceLoading(false);setVoiceDone(true)},1500)}}}
+              placeholder={'e.g. "When a patient is about to run out of meds, send them a text reminder two days before"'}
+              style={{width:'100%',padding:'12px 14px',background:'var(--input-bg)',borderRadius:12,border:'.5px solid var(--input-stroke)',fontSize:15,fontFamily:'inherit',color:'var(--primary-text)',outline:'none',resize:'none',minHeight:80,lineHeight:1.4}}/>
+          </div>
+          {voiceText&&!voiceLoading&&<div style={{marginTop:12,width:'100%'}}>
+            <button onClick={()=>{setVoiceLoading(true);setTimeout(()=>{setVoiceLoading(false);setVoiceDone(true)},1500)}} className="btn-primary">Create scenario</button>
+          </div>}
+          {voiceLoading&&<div style={{marginTop:24,fontSize:14,color:'var(--secondary-text)'}}>Defining your scenario...</div>}
+        </div>
+        <FloatingTabBar active="profile"/>
+      </div>
+    );
+  }
+
+  // ── Edit Scenario page ──
+  if(editing){
+    const isInbound=eDir==='inbound';
+    return(
+      <div className="phone"><StatusBar/>
+        <div className="nav-header">
+          <span onClick={()=>setEditing(null)} style={{fontSize:15,color:'var(--accent)',cursor:'pointer'}}>Cancel</span>
+          <span style={{fontSize:17,fontWeight:500,color:'var(--primary-text)',flex:1,textAlign:'center'}}>Edit Scenario</span>
+          <span onClick={()=>setEditing(null)} style={{fontSize:15,color:'var(--accent)',fontWeight:600,cursor:'pointer'}}>Save</span>
+        </div>
+        <div className="screen-content"><div style={{padding:'0 16px'}}>
+          <div className="card" style={{marginBottom:16,marginTop:8}}>
+            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'8px 0',borderBottom:'.5px solid var(--border)'}}>
+              <span style={{fontSize:15,color:'var(--primary-text)'}}>Direction</span>
+              <div style={{display:'flex',borderRadius:20,overflow:'hidden',border:'1px solid var(--border)'}}>
+                <div onClick={()=>setEDir('outbound')} style={{padding:'4px 12px',fontSize:13,fontWeight:600,background:!isInbound?'var(--primary-text)':'transparent',color:!isInbound?'#fff':'var(--secondary-text)',cursor:'pointer'}}>Outbound</div>
+                <div onClick={()=>setEDir('inbound')} style={{padding:'4px 12px',fontSize:13,fontWeight:600,background:isInbound?'var(--primary-text)':'transparent',color:isInbound?'#fff':'var(--secondary-text)',cursor:'pointer'}}>Inbound</div>
+              </div>
+            </div>
+            <div style={{padding:'12px 0',borderBottom:'.5px solid var(--border)'}}>
+              <div style={{fontSize:13,color:'var(--tertiary-text)',marginBottom:6}}>{isInbound?'Condition':'Outbound condition'}</div>
+              {isInbound?(
+                <div style={{fontSize:15,color:'var(--primary-text)',lineHeight:1.6}}>If <ChevPill label="rel" options={relOpts} value={eRel} onChange={setERel}/>&apos;s call is missed</div>
+              ):(
+                <div style={{fontSize:15,color:'var(--primary-text)',lineHeight:1.6}}>
+                  If <ChevPill label="rel" options={relOpts} value={eRel} onChange={setERel}/>&apos;s <ChevPill label="event" options={eventOpts} value={eEvent} onChange={setEEvent}/> date is <ChevPill label="timing" options={timingOpts} value={eTiming} onChange={setETiming}/>
+                </div>
+              )}
+            </div>
+            <div style={{padding:'12px 0',borderBottom:'.5px solid var(--border)'}}>
+              <div style={{fontSize:13,color:'var(--tertiary-text)',marginBottom:6}}>{isInbound?'Action':'Outbound action'}</div>
+              <div style={{fontSize:15,color:'var(--primary-text)',lineHeight:1.6}}>
+                {eAction==='text'?(
+                  <><ChevPill label="action" options={['Text','Make an AI call regarding']} value="Text" onChange={v=>setEAction(v==='Text'?'text':'call')}/> {isInbound?'back apologizing & asking how we can help':'a '+eEvent+' reminder'}</>
+                ):(
+                  <><ChevPill label="action" options={['Text','Make an AI call regarding']} value="Make an AI call regarding" onChange={v=>setEAction(v==='Text'?'text':'call')}/> {eEvent} {isInbound?'follow-up':'check-in'}</>
+                )}
+              </div>
+            </div>
+            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'12px 0'}}>
+              <span style={{fontSize:15,color:'var(--primary-text)'}}>Automatic</span>
+              <Toggle on={eAuto} onToggle={()=>setEAuto(!eAuto)}/>
+            </div>
+          </div>
+          <button style={{width:'100%',padding:14,borderRadius:'var(--r-xxl)',border:'1px solid var(--error)',background:'transparent',color:'var(--error)',fontSize:17,fontWeight:600,cursor:'pointer',fontFamily:'inherit'}}>Delete</button>
+        </div></div>
+        <FloatingTabBar active="profile"/>
+      </div>
+    );
+  }
+
+  // ── Main settings list ──
   return(
-    <div className="phone">
-      <StatusBar/>
+    <div className="phone"><StatusBar/>
       <div className="nav-header">
-        <button className="back-btn">‹</button>
+        <button className="back-btn">&#8249;</button>
         <span style={{fontSize:17,fontWeight:500,color:'var(--primary-text)',flex:1,textAlign:'center',marginRight:26}}>AI Secretary Settings</span>
       </div>
-      <div className="screen-content">
-        <div style={{padding:'0 16px'}}>
-          {/* Identity section */}
-          <div className="section-header">Identity</div>
-          <div className="card" style={{marginBottom:16}}>
-            <div style={{padding:'4px 0 10px',borderBottom:'.5px solid var(--border)'}}>
-              <div style={{fontSize:13,color:'var(--tertiary-text)',marginBottom:2}}>AI Name</div>
-              <div style={{fontSize:17,color:'var(--primary-text)'}}>Brooke</div>
-            </div>
-            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'10px 0',borderBottom:'.5px solid var(--border)'}}>
-              <span style={{fontSize:15,color:'var(--primary-text)'}}>AI Voice</span>
-              <span style={{fontSize:15,color:'var(--accent)',fontWeight:500}}>Brooke ⇅</span>
-            </div>
-            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'10px 0 4px'}}>
-              <span style={{fontSize:15,color:'var(--primary-text)'}}>AI Title</span>
-              <span style={{fontSize:15,color:'var(--accent)',fontWeight:500}}>Secretary ⇅</span>
-            </div>
+      <div className="screen-content"><div style={{padding:'0 16px'}}>
+        <div className="section-header">Identity</div>
+        <div className="card" style={{marginBottom:16}}>
+          <div style={{padding:'4px 0 10px',borderBottom:'.5px solid var(--border)'}}>
+            <div style={{fontSize:13,color:'var(--tertiary-text)',marginBottom:2}}>AI Name</div>
+            <div style={{fontSize:17,color:'var(--primary-text)'}}>Brooke</div>
           </div>
-
-          {/* Custom Instructions section */}
-          <div className="section-header">Custom Instructions</div>
-          <div className="card" style={{marginBottom:16}}>
-            <div style={{padding:'4px 0 10px',borderBottom:'.5px solid var(--border)'}}>
-              <div style={{fontSize:13,color:'var(--tertiary-text)',marginBottom:2}}>Further Guidelines</div>
-              <div style={{fontSize:15,color:'var(--secondary-text)'}}>Instructions to change the behaviour of your Secretary</div>
-            </div>
-            <div style={{padding:'10px 0 4px'}}>
-              <div style={{fontSize:13,color:'var(--tertiary-text)',marginBottom:2}}>FAQ</div>
-              <div style={{fontSize:15,color:'var(--primary-text)',lineHeight:1.4}}>Q: What's your website?{'\n'}A: www.yousquared.ai</div>
-            </div>
+          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'10px 0',borderBottom:'.5px solid var(--border)'}}>
+            <span style={{fontSize:15,color:'var(--primary-text)'}}>AI Voice</span>
+            <span style={{fontSize:15,color:'var(--accent)',fontWeight:500}}>Brooke &#8597;</span>
           </div>
-
-          {/* Scenarios section — matches CallerScenariosView */}
-          <div className="section-header">Scenarios</div>
-          <div className="card" style={{marginBottom:16}}>
-            {scenarios.map((sc,i)=>(
-              <div key={i} style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',padding:'10px 0',borderBottom:i<scenarios.length-1?'.5px solid var(--border)':'none'}}>
-                <div style={{flex:1}}>
-                  <div style={{fontSize:15,fontWeight:600,color:'var(--primary-text)',marginBottom:2}}>{sc.condition}</div>
-                  <div style={{fontSize:14,color:'var(--secondary-text)',lineHeight:1.4}}>{sc.instructions}</div>
-                </div>
-                <span style={{display:'flex',marginTop:2,marginLeft:8,opacity:.4}}>{I.edit({s:16,c:'var(--primary-text)'})}</span>
-              </div>
-            ))}
-            {/* Add Scenario row */}
-            <div style={{padding:'12px 0 4px',display:'flex',alignItems:'center',gap:6,cursor:'pointer'}}>
-              <span style={{display:'flex',color:'var(--accent)'}}>{I.plus({s:18,c:'var(--accent)'})}</span>
-              <span style={{fontSize:15,fontWeight:500,color:'var(--accent)'}}>Add Scenario</span>
-            </div>
+          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'10px 0 4px'}}>
+            <span style={{fontSize:15,color:'var(--primary-text)'}}>AI Title</span>
+            <span style={{fontSize:15,color:'var(--accent)',fontWeight:500}}>Secretary &#8597;</span>
           </div>
-
-          <div style={{height:80}}/>
         </div>
-      </div>
+        <div className="section-header">Custom Instructions</div>
+        <div className="card" style={{marginBottom:16}}>
+          <div style={{padding:'4px 0 10px',borderBottom:'.5px solid var(--border)'}}>
+            <div style={{fontSize:13,color:'var(--tertiary-text)',marginBottom:2}}>Further Guidelines</div>
+            <div style={{fontSize:15,color:'var(--secondary-text)'}}>Instructions to change the behaviour of your Secretary</div>
+          </div>
+          <div style={{padding:'10px 0 4px'}}>
+            <div style={{fontSize:13,color:'var(--tertiary-text)',marginBottom:2}}>FAQ</div>
+            <div style={{fontSize:15,color:'var(--primary-text)',lineHeight:1.4}}>Q: What's your website?{'\n'}A: www.yousquared.ai</div>
+          </div>
+        </div>
+        <div className="section-header">Scenarios</div>
+        <div className="card" style={{marginBottom:16}}>
+          {allScenarios.map((sc,i)=>(
+            <div key={sc.id} onClick={()=>{setEditing(sc);setERel(sc.rel);setEEvent(sc.event);setETiming(sc.timing);setEAction(sc.action);setEAuto(sc.auto);setEDir(sc.direction)}}
+              style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',padding:'10px 0',borderBottom:i<allScenarios.length-1?'.5px solid var(--border)':'none',cursor:'pointer'}}>
+              <div style={{flex:1}}>
+                <div style={{fontSize:15,fontWeight:600,color:'var(--primary-text)',marginBottom:2}}>{sc.condition}</div>
+                <div style={{fontSize:14,color:'var(--secondary-text)',lineHeight:1.4}}>{sc.instructions}</div>
+                <div style={{marginTop:4}}>
+                  <span style={{fontSize:11,fontWeight:600,padding:'2px 6px',borderRadius:4,background:sc.auto?'#E8F5E9':'var(--surface-darken)',color:sc.auto?'var(--green)':'var(--tertiary-text)',textTransform:'uppercase',letterSpacing:.3}}>{sc.auto?'Automatic':'Manual'}</span>
+                </div>
+              </div>
+              <span style={{display:'flex',marginTop:2,marginLeft:8,opacity:.4}}>{I.edit({s:16,c:'var(--primary-text)'})}</span>
+            </div>
+          ))}
+          <div onClick={()=>setAdding(true)} style={{padding:'12px 0 4px',display:'flex',alignItems:'center',gap:6,cursor:'pointer'}}>
+            <span style={{display:'flex',color:'var(--accent)'}}>{I.plus({s:18,c:'var(--accent)'})}</span>
+            <span style={{fontSize:15,fontWeight:500,color:'var(--accent)'}}>Add Scenario</span>
+          </div>
+        </div>
+        <div style={{height:80}}/>
+      </div></div>
       <FloatingTabBar active="profile"/>
     </div>
   );
