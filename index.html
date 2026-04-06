@@ -49,6 +49,8 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 .screen-content{flex:1;overflow-y:auto;overflow-x:hidden}
 .screen-content::-webkit-scrollbar{display:none}
 .pill-scroll::-webkit-scrollbar{display:none}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
 /* ── Floating tab bar (from FloatingTabBar.swift) ── */
 /* Capsule pill: 210×56, surfaceDarken fill, with assistant button */
@@ -291,6 +293,20 @@ const TODOS=[
   {id:9,contact:'Rachel K.',rel:'Patient',type:'check-in',summary:'Last visit 60 days ago, mentioned wanting to get healthier: preventive care check-in.',callDraft:'Authenticate (DoB) & check in with Rachel. Last visit was Feb 3 with Dr. Fakheri — mild hypertension 138/86, BMI 31, stress and sleep issues, prescribed melatonin. She mentioned wanting to get healthier for her kids. Ask how the melatonin is working, how she\'s feeling. Offer to schedule a wellness visit.',textDraft:'Hi Rachel, this is Ahava Medical. We hope you\'re doing well. We\'d love to check in — can you call us back on this number please?',due:'May 4',sendAs:'call',earlierItems:[{type:'call',direction:'in',time:'Jan 15',summary:'Well-child visit for her son (age 8) with Dr. Kabariti. Child healthy, routine vaccines administered.'},{type:'call',direction:'in',time:'Feb 3',summary:'Rachel\'s own visit with Dr. Fakheri. Routine check-up — BMI 31, mild hypertension (138/86), discussed stress and sleep issues, prescribed melatonin. Patient mentioned wanting to get healthier for her kids.'}],serviceEvent:{title:'Last visit Feb 3, 2026 with Dr. Fakheri — BMI 31, mild hypertension',scheduled:'Scheduled for May 4: wellness check-in (90 days, patient expressed health goals)',date:'Feb 3'}},
   {id:10,contact:'James T.',rel:'Patient',type:'renewal',summary:'Rx renewal overdue and lab follow-up needed: refill reminder + wellness check-in.',callDraft:'Authenticate (DoB) & call James about his overdue prescription renewal — Metformin 1000mg and Amlodipine 5mg were due for refill in Feb. Also, his last visit was Aug 20 with Dr. Hoch, A1C was 7.2 and lab recheck was recommended at 6 months. Ask if he\'d like to schedule both a refill and a follow-up visit.',textDraft:'Hi James, this is Ahava Medical. You have a prescription renewal coming due and we\'d like to schedule a follow-up. Can you call us back on this number please?',due:'Today',sendAs:'call',earlierItems:[{type:'call',direction:'in',time:'Aug 20',summary:'Routine visit with Dr. Hoch. Type 2 diabetes (managed, A1C 7.2), hypertension, BMI 36. On Metformin 1000mg and Amlodipine 5mg. Discussed adding to regimen, patient declined at the time.'},{type:'sms',direction:'out',time:'Feb 10',text:'Rx renewal reminder. No response.'}],serviceEvent:{title:'Rx refill overdue since Feb 2026 — Metformin 1000mg, Amlodipine 5mg',scheduled:'Scheduled for Apr 1: Rx renewal reminder + wellness check-in (>180 days, lab follow-up needed)',date:'Feb 10'}},
 ];
+
+// Transcript data for post-send simulation
+const TRANSCRIPTS={
+  1:{outcome:'booked',label:'Refill confirmed',lines:[{w:'a',t:'Hi, this is Safer Pharmacy calling for Maria. May I confirm your date of birth?'},{w:'p',t:'Sure, March 15th, 1988.'},{w:'a',t:'Thank you Maria. Your Ozempic refill is coming due around April 2nd. Would you like us to ship to your Florida address again?'},{w:'p',t:'Yes please, same address.'},{w:'a',t:'Perfect. By the way, how have you been feeling on the Ozempic? Any side effects?'},{w:'p',t:'The nausea went away after the first couple weeks. Much better now.'},{w:'a',t:'That\'s great to hear. Your refill is confirmed — we\'ll text you the tracking number once it ships. Have a great day!'}]},
+  2:{outcome:'booked',label:'Scan scheduled',lines:[{w:'a',t:'Hi, this is Dr. Ali\'s office calling for Sarah. May I confirm your date of birth?'},{w:'p',t:'July 22nd, 1979.'},{w:'a',t:'Thank you Sarah. It\'s been about 6 months since your last CT scan and it\'s time to schedule your routine surveillance scan. How have you been feeling?'},{w:'p',t:'Pretty good. A little tired sometimes but much better than during treatment.'},{w:'a',t:'That\'s wonderful. The fatigue should continue to improve. We have openings next week — Thursday or Friday?'},{w:'p',t:'Thursday works. Morning if possible.'},{w:'a',t:'Thursday at 9:30am. We\'ll send confirmation. Take care Sarah!'}]},
+  3:{outcome:'booked',label:'Rental extended',lines:[{w:'a',t:'Hi, this is All Access Equipment calling for Luis. How are you?'},{w:'p',t:'Hey, good. What\'s up?'},{w:'a',t:'Your two scissor lifts at 600 B St are coming up for return on Friday. Want to extend or schedule pickup?'},{w:'p',t:'Yeah we still need them, project got extended. Can we do another two weeks?'},{w:'a',t:'Absolutely, extended through April 16th. Same rate. Anything else you need on site?'},{w:'p',t:'Actually, do you have any boom lifts available? We might need one next week.'},{w:'a',t:'Let me check availability and have John call you back with a quote. Talk soon!'}]},
+  4:{outcome:'confirmed',label:'Delivery confirmed',lines:[{w:'a',t:'Hi, this is Safer Pharmacy calling for Carlos. May I confirm your date of birth?'},{w:'p',t:'November 3rd, 1975.'},{w:'a',t:'Thank you Carlos. Just calling to check — your Ozempic delivery went out yesterday. Did everything arrive safely?'},{w:'p',t:'Yeah I got it this morning. All good.'},{w:'a',t:'Great! Since this is your first time on Ozempic, any questions about the pen or storage?'},{w:'p',t:'Do I need to keep it in the fridge the whole time?'},{w:'a',t:'Keep it refrigerated until first use, then room temperature for up to 56 days. Avoid direct sunlight and extreme heat.'},{w:'p',t:'No that\'s helpful, thanks.'},{w:'a',t:'You\'re welcome! Call us anytime if questions come up. Take care!'}]},
+  5:{outcome:'booked',label:'Follow-up scheduled',lines:[{w:'a',t:'Hi, this is Dr. Ali\'s office calling for James. May I confirm your date of birth?'},{w:'p',t:'April 8th, 1961.'},{w:'a',t:'Thank you James. Calling to check in after your third immunotherapy cycle. How are you feeling?'},{w:'p',t:'Tired. More than last time. And some nausea.'},{w:'a',t:'I\'m sorry to hear that. Have you noticed any skin rash or itching?'},{w:'p',t:'No rash.'},{w:'a',t:'Any diarrhea more than usual?'},{w:'p',t:'Maybe a little more, but nothing too bad.'},{w:'a',t:'Any shortness of breath?'},{w:'p',t:'No, breathing is fine.'},{w:'a',t:'Good. Vision changes, or yellowing of skin or eyes?'},{w:'p',t:'No, nothing like that.'},{w:'a',t:'The fatigue and mild GI symptoms are common after cycle 3. I\'d recommend scheduling a check-in with Dr. Ali. Would this week work?'},{w:'p',t:'Yeah, can we do Friday?'},{w:'a',t:'Friday at 2pm with Dr. Ali. Stay hydrated and rest. Call us if anything changes.'}]},
+  6:{outcome:'confirmed',label:'Setup confirmed',lines:[{w:'a',t:'Hi, this is John from All Access calling for Dave. How\'s it going?'},{w:'p',t:'Hey John. Good, just getting started.'},{w:'a',t:'Did the 40-foot boom get set up OK this morning?'},{w:'p',t:'Yep, your guys dropped it off right at 7. My operator is already up on it.'},{w:'a',t:'Perfect. One question — how high can we safely extend it in wind?'},{w:'p',t:'Good question. Don\'t operate above 28 mph winds. If it gets gusty, lower the platform and wait it out.'},{w:'a',t:'Got it, thanks.'},{w:'a',t:'Anytime. Give us a ring if you need anything else on site!'}]},
+  7:{outcome:'booked',label:'Telehealth visit booked',lines:[{w:'a',t:'Hi, this is Ahava Medical calling for David. May I confirm your date of birth?'},{w:'p',t:'June 14th, 1973.'},{w:'a',t:'Thank you David. It\'s been a few months since your visit with Dr. Hoch in November. How have you been feeling?'},{w:'p',t:'Honestly? Not great. I\'ve been meaning to come back in. The diet changes haven\'t really stuck.'},{w:'a',t:'I appreciate your honesty. Lifestyle changes are hard to sustain on your own — that\'s one of the reasons we\'re calling. Would you be open to scheduling a visit to talk through some options?'},{w:'p',t:'Yeah, I think I should. What kind of options?'},{w:'a',t:'Dr. Hoch can discuss different approaches — there are newer treatment options that can help alongside lifestyle changes. We have telehealth appointments this week if that\'s easier.'},{w:'p',t:'Telehealth would be great. What do you have?'},{w:'a',t:'Thursday at 11am with Dr. Hoch via telehealth.'},{w:'p',t:'Perfect, book it.'},{w:'a',t:'You\'re all set. We\'ll send the link by text. Take care David!'}]},
+  8:{outcome:'declined',label:'Check-in completed (no booking)',lines:[{w:'a',t:'Hi, this is Ahava Medical calling for Maria. May I confirm your date of birth?'},{w:'p',t:'February 9th, 1981.'},{w:'a',t:'Thank you Maria. It\'s been a while since your last visit with Dr. Fakheri. How have you been feeling?'},{w:'p',t:'I\'m doing fine, thanks. My back has been good.'},{w:'a',t:'Great to hear the back pain stayed resolved. How about in general — anything else going on health-wise?'},{w:'p',t:'No, I\'m good. I\'ve been busy with work and haven\'t had time to come in.'},{w:'a',t:'Completely understand. If you ever want to schedule a routine check-up, you can call us anytime or book online.'},{w:'p',t:'Sure, I\'ll do that when things calm down. Thanks for calling.'},{w:'a',t:'Of course! Take care Maria. We\'re here whenever you need us.'}]},
+  9:{outcome:'transfer',label:'Transferred to Dr. Fakheri',lines:[{w:'a',t:'Hi, this is Ahava Medical calling for Rachel. May I confirm your date of birth?'},{w:'p',t:'September 30th, 1987.'},{w:'a',t:'Thank you Rachel. Last time you saw Dr. Fakheri, you mentioned wanting to focus on getting healthier. How\'s that been going?'},{w:'p',t:'Oh, that\'s really thoughtful. The melatonin helped with sleep a lot. But I still don\'t know where to start with the rest.'},{w:'a',t:'That\'s great about the sleep. Dr. Fakheri can put together a personalized wellness plan — nutrition guidance, activity goals, maybe some additional support.'},{w:'p',t:'That sounds helpful. But I have questions — is this covered by insurance? What would it look like?'},{w:'a',t:'Great questions. Would you prefer to speak directly with someone from Dr. Fakheri\'s team?'},{w:'p',t:'Yes, can you transfer me?'},{w:'a',t:'Absolutely. Let me connect you now. One moment...'},{w:'s',t:'📞 Call transferred to Dr. Fakheri\'s office.'}]},
+  10:{outcome:'booked',label:'Telehealth + Rx refill booked',lines:[{w:'a',t:'Hi, this is Ahava Medical calling for James. May I confirm your date of birth?'},{w:'p',t:'March 22nd, 1958.'},{w:'a',t:'Thank you James. Your Metformin and Amlodipine prescriptions were due for renewal in February and haven\'t been refilled. Is everything OK?'},{w:'p',t:'Yeah, I know. I just kept putting it off. Things have been hectic.'},{w:'a',t:'I understand. It\'s important to stay on your medications for blood sugar and blood pressure. We can refill right away. Would you also like to schedule a visit with Dr. Hoch? It\'s been about 7 months and he recommended a lab recheck.'},{w:'p',t:'Yeah, you\'re right. Can we do telehealth?'},{w:'a',t:'Wednesday at 3pm with Dr. Hoch via telehealth. And I\'ll process the Rx refills today.'},{w:'p',t:'That works. Thanks for calling — I probably wouldn\'t have gotten around to it otherwise.'},{w:'a',t:'That\'s exactly why we reach out. We\'ll send the link and confirm refills by text. Take care James!'}]},
+};
 
 // ── Shared Components ──
 function StatusBar(){
@@ -675,6 +691,10 @@ function TodoScreen({onNavigate}){
   const[draftEditing,setDraftEditing]=useState(false);
   const[editedDraft,setEditedDraft]=useState('');
   const[sentIds,setSentIds]=useState([]);
+  const[simState,setSimState]=useState(null); // null|'loading'|'playing'|'done'
+  const[simLines,setSimLines]=useState([]);
+  const[simIdx,setSimIdx]=useState(0);
+  const simScrollRef=useRef(null);
   const pending=TODOS.filter(t=>!sentIds.includes(t.id));
   const sent=TODOS.filter(t=>sentIds.includes(t.id));
 
@@ -701,6 +721,79 @@ function TodoScreen({onNavigate}){
       return ()=>clearTimeout(t);
     }
   },[openThread]);
+  // Simulation playback — reveal lines one by one
+  React.useEffect(()=>{
+    if(simState==='playing'&&openThread){
+      const tx=TRANSCRIPTS[openThread.id];
+      if(tx&&simIdx<tx.lines.length){
+        const t=setTimeout(()=>{
+          setSimLines(l=>[...l,tx.lines[simIdx]]);
+          setSimIdx(i=>i+1);
+          if(simScrollRef.current)simScrollRef.current.scrollTop=simScrollRef.current.scrollHeight;
+        },1200);
+        return()=>clearTimeout(t);
+      }else if(tx&&simIdx>=tx.lines.length){
+        setSimState('done');
+        setSentIds(p=>[...p,openThread.id]);
+      }
+    }
+  },[simState,simIdx,openThread]);
+
+  // ── Simulation view ──
+  if(openThread&&simState){
+    const tx=TRANSCRIPTS[openThread.id]||{};
+    const isCall=threadSendAs==='call';
+    return(
+      <div className="phone">
+        <StatusBar/>
+        <div style={{display:'flex',alignItems:'center',padding:'2px 16px 6px',gap:10,borderBottom:'.5px solid var(--border)',flexShrink:0}}>
+          <button className="back-btn" style={{padding:0}} onClick={()=>{setSimState(null);setSimLines([]);setSimIdx(0);}}>&#8249;</button>
+          <Avatar name={openThread.contact} size={36}/>
+          <div style={{flex:1}}>
+            <div style={{fontSize:17,fontWeight:600,color:'var(--primary-text)'}}>{openThread.contact}</div>
+            <div style={{fontSize:12,color:simState==='loading'?'var(--accent)':simState==='playing'?'var(--green)':'var(--secondary-text)'}}>{simState==='loading'?(isCall?'Calling...':'Sending...'):(simState==='playing'?(isCall?'AI call in progress...':'Awaiting response...'):'Call ended')}</div>
+          </div>
+          {simState==='playing'&&<div style={{width:10,height:10,borderRadius:5,background:'var(--green)',animation:'pulse 1.5s infinite'}}/>}
+        </div>
+        {simState==='loading'?(
+          <div className="screen-content" style={{display:'flex',alignItems:'center',justifyContent:'center',background:'var(--bg)'}}>
+            <div style={{textAlign:'center'}}>
+              <div style={{fontSize:40,marginBottom:16}}>{isCall?'📞':'📱'}</div>
+              <div style={{fontSize:17,fontWeight:600,color:'var(--primary-text)',marginBottom:4}}>{isCall?'Placing AI call...':'Sending text...'}</div>
+              <div style={{fontSize:14,color:'var(--secondary-text)'}}>{openThread.contact}</div>
+            </div>
+          </div>
+        ):(
+          <div className="screen-content" ref={simScrollRef} style={{background:'var(--bg)',padding:'12px 16px'}}>
+            {simLines.map((line,i)=>{
+              const isAI=line.w==='a';
+              const isSys=line.w==='s';
+              if(isSys) return <div key={i} style={{textAlign:'center',padding:'8px 0',fontSize:13,color:'var(--secondary-text)',fontStyle:'italic'}}>{line.t}</div>;
+              return(
+                <div key={i} style={{display:'flex',justifyContent:isAI?'flex-start':'flex-end',marginBottom:8,animation:'fadeIn .3s ease'}}>
+                  <div style={{maxWidth:'80%',padding:'10px 14px',borderRadius:isAI?'16px 16px 16px 4px':'16px 16px 4px 16px',background:isAI?'var(--surface-dark)':'var(--accent)',color:isAI?'var(--primary-text)':'#fff',fontSize:15,lineHeight:1.4}}>
+                    {line.t}
+                  </div>
+                </div>
+              );
+            })}
+            {simState==='done'&&tx.label&&(
+              <div style={{textAlign:'center',padding:'16px 0'}}>
+                <div style={{display:'inline-flex',alignItems:'center',gap:6,padding:'8px 16px',borderRadius:20,background:tx.outcome==='booked'?'#E8F5E9':tx.outcome==='transfer'?'#E3F2FD':'var(--surface-darken)'}}>
+                  <span style={{fontSize:14}}>{tx.outcome==='booked'?'✅':tx.outcome==='transfer'?'📞':'👋'}</span>
+                  <span style={{fontSize:14,fontWeight:600,color:tx.outcome==='booked'?'var(--green)':tx.outcome==='transfer'?'var(--blue)':'var(--secondary-text)'}}>{tx.label}</span>
+                </div>
+                <div style={{marginTop:12}}>
+                  <button className="btn-secondary" style={{width:'auto',padding:'10px 24px',fontSize:14}} onClick={()=>{setSimState(null);setSimLines([]);setSimIdx(0);setOpenThread(null)}}>Back to To-Do</button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  }
+
   if(openThread){
     return(
       <div className="phone">
@@ -805,7 +898,18 @@ function TodoScreen({onNavigate}){
                 )}
               </div>
               <div style={{width:36,height:36,borderRadius:18,background:'var(--accent)',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',flexShrink:0,marginBottom:2}}
-                onClick={()=>{setSentIds(p=>[...p,openThread.id]);setOpenThread(null)}}>
+                onClick={()=>{
+                  // Start simulation
+                  const tx=TRANSCRIPTS[openThread.id];
+                  if(tx){
+                    setSimState('loading');
+                    setSimLines([]);
+                    setSimIdx(0);
+                    setTimeout(()=>{setSimState('playing')},2000);
+                  }else{
+                    setSentIds(p=>[...p,openThread.id]);setOpenThread(null);
+                  }
+                }}>
                 {I.arrowUp({s:16,c:'#fff'})}
               </div>
             </div>
