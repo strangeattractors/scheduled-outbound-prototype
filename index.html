@@ -533,7 +533,8 @@ function TodoScreen({onNavigate}){
         if(triggerRef.current&&scrollRef.current){
           const containerTop=scrollRef.current.getBoundingClientRect().top;
           const elTop=triggerRef.current.getBoundingClientRect().top;
-          scrollRef.current.scrollTop+=elTop-containerTop;
+          // Scroll so the date label above the event is at the top (subtract 30px for the date pill)
+          scrollRef.current.scrollTop+=elTop-containerTop-30;
         }
       },150);
       return ()=>clearTimeout(t);
